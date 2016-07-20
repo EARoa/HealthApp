@@ -16,52 +16,44 @@ class ViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-
         self.pedometer = CMPedometer()
         self.pedometer.startPedometerUpdatesFromDate(NSDate()) { (data :CMPedometerData?, error :NSError?) in
+            
         }
     }
 
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
-        // Dispose of any resources that can be recreated.
     }
     
     @IBAction func dataButtonWasPressed(){
+        let coolView = UIView(frame: CGRectMake(0,450,450,250))
+        coolView.backgroundColor = UIColor(red:0.00, green:0.62, blue:0.91, alpha:1.00)
+        self.view.addSubview(coolView)
+            for day in 1...7 {
+            let calendar = NSCalendar.currentCalendar()
+            guard let startDate = calendar.dateByAddingUnit(.Day, value: -1 * day, toDate: NSDate(), options: []) else {
+                fatalError("Unable to get date")
+            }
         
-        let calendar = NSCalendar.currentCalendar()
-        let startDate = calendar.dateByAddingUnit(.Day, value: -7, toDate: NSDate(), options: [])
-        
-        
-        let day = calendar.dateByAddingUnit(.Day, value: 0, toDate: NSDate(), options:[])
-        
-        
-        let graphs = [day, startDate]
-        
-        
-        print(graphs)
-        
-        self.pedometer.queryPedometerDataFromDate(startDate!, toDate: NSDate()) { (data :CMPedometerData?, error :NSError?) in
+        // Not sure why I did this but it works!
+        let initialX = 60
+        let xValueForBar = (initialX * day) - 55
+        print(xValueForBar)
+
+        self.pedometer.queryPedometerDataFromDate(startDate, toDate: NSDate()) { (data :CMPedometerData?, error :NSError?) in
             
             if let data = data {
-                print(data.numberOfSteps)
-                
                 let stepCount = data.numberOfSteps
-                
                 let stepDouble = Double(stepCount)     // 2
                 let negativeNumber = (stepDouble * -1) / 130
                 
                 dispatch_async(dispatch_get_main_queue(), {
-                
-                let coolView = UIView(frame: CGRectMake(10,450,390,250))
-                coolView.backgroundColor = UIColor(red:0.00, green:0.62, blue:0.91, alpha:1.00)
-                self.view.addSubview(coolView)
+                    let bar = UIView(frame: CGRectMake(CGFloat(xValueForBar),250,45,CGFloat(negativeNumber)))
+                    bar.backgroundColor = UIColor.greenColor()
+                    coolView.addSubview(bar)
                     
-                    let firstBar = UIView(frame: CGRectMake(10,250,50,CGFloat(negativeNumber)))
-                    firstBar.backgroundColor = UIColor.greenColor()
-                    coolView.addSubview(firstBar)
-                    
-                    let stepValueNumber = UILabel(frame: CGRectMake(10,190,100,100))
+                    let stepValueNumber = UILabel(frame: CGRectMake(CGFloat(xValueForBar),0,100,100))
                     stepValueNumber.text = String(format:"%.0f",stepDouble)
                     coolView.addSubview(stepValueNumber)
                     
@@ -70,4 +62,4 @@ class ViewController: UIViewController {
         }
     }
 }
-
+}
